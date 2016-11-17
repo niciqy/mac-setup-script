@@ -1,165 +1,21 @@
 #!/usr/bin/env bash
 
 brews=(
-  android-platform-tools
-  archey
-  aws-shell
-  cheat
-  clib
-  coreutils
-  dfc
-  findutils
-  fontconfig --universal
-  fpp
-  fzf
-  git
-  git-extras
-  git-lfs
-  gnuplot --with-qt
-  go
-  gpg
-  hh
-  htop
-  httpie
-  iftop
-  imagemagick
-  lighttpd
-  lnav
-  lumen
-  mackup
-  macvim
-  mas
-  micro
-  mtr
-  ncdu
-  nmap
   node --with-full-icu
-  poppler
-  postgresql
-  pgcli
-  python
-  python3
-  scala
-  sbt
-  stormssh
-  thefuck
-  tmux
-  tree
-  trash
   wget
+  homebrew/versions/maven32
 )
 
 casks=(
-  adobe-reader
-  airdroid
-  atom
-  betterzipql
-  cakebrew
-  cleanmymac
-  commander-one
-  datagrip
-  docker
-  dropbox
-  firefox
-  geekbench
-  google-chrome
-  google-drive
-  github-desktop
-  hosts
-  handbrake
-  intellij-idea
-  istat-menus
-  istat-server  
-  launchrocket
-  licecap
-  lumen
-  iterm2
-  qlcolorcode
-  qlmarkdown
-  qlstephen
-  quicklook-json
-  quicklook-csv
-  microsoft-office
-  plex-home-theater
-  plex-media-server
-  private-eye
-  satellite-eyes
-  sidekick
-  skype
-  slack
-  spotify
-  steam
-  teleport
-  transmission
-  transmission-remote-gui
-  tunnelbear
-  vlc
-  volumemixer
-  webstorm
-  xquartz
 )
 
 pips=(
   pip
-  glances
-  ohmu
-  pythonpy
+  awscli
 )
 
 gems=(
   bundle
-)
-
-npms=(
-  fenix-cli
-  gitjk
-  kill-tabs
-  n
-  nuclide-installer
-)
-
-clibs=(
-  bpkg/bpkg
-)
-
-bkpgs=(
-)
-
-gpg_key='3E219504'
-git_configs=(
-  "branch.autoSetupRebase always"
-  "color.ui auto"
-  "core.autocrlf input"
-  "core.pager cat"
-  "credential.helper osxkeychain"
-  "merge.ff false"
-  "pull.rebase true"
-  "push.default simple"
-  "rebase.autostash true"
-  "rerere.autoUpdate true"
-  "rerere.enabled true"
-  "user.name pathikrit"
-  "user.email pathikritbhowmick@msn.com"
-  "user.signingkey ${gpg_key}"
-)
-
-apms=(
-  atom-beautify
-  circle-ci
-  ensime
-  intellij-idea-keymap
-  language-scala
-  minimap
-)
-
-fonts=(
-  font-source-code-pro
-)
-
-omfs=(
-  jacaetevha
-  osx
-  thefuck
 )
 
 ######################################## End of app list ########################################
@@ -206,13 +62,18 @@ function install {
 
 echo "Installing ruby ..."
 brew install ruby-install chruby
-ruby-install ruby
-# TODO: enable auto switch here by following instructions
-echo "ruby-2.3.1" > ~/.ruby-version
+ruby-install ruby-2.2.1
+ruby-install ruby-1.9.3-p551
+
+echo "source /usr/local/share/chruby/chruby.sh" >> ~/.bash_profile
+echo "source /usr/local/share/chruby/auto.sh" >> ~/.bash_profile
+
+source ~/.bash_profile
+chruby ruby-2.2.1
 ruby -v
 
-echo "Installing Java ..."
-brew cask install java
+echo "Installing Java 1.6..."
+brew cask install java6
 
 echo "Installing packages ..."
 brew info ${brews[@]}
@@ -230,36 +91,6 @@ echo "Installing secondary packages ..."
 # TODO: add info part of install or do reinstall?
 install 'pip install --upgrade' ${pips[@]}
 install 'gem install' ${gems[@]}
-install 'clib install' ${clibs[@]}
-install 'bpkg install' ${bpkgs[@]}
-install 'npm install --global' ${npms[@]}
-install 'apm install' ${apms[@]}
-install 'brew cask install' ${fonts[@]}
-
-echo "Upgrading bash ..."
-brew install bash
-sudo bash -c "echo $(brew --prefix)/bin/bash >> /private/etc/shells"
-mv ~/.bash_profile ~/.bash_profile_backup
-mv ~/.bashrc ~/.bashrc_backup
-mv ~/.gitconfig ~/.gitconfig_backup
-cd; curl -#L https://github.com/barryclark/bashstrap/tarball/master | tar -xzv --strip-components 1 --exclude={README.md,screenshot.png}
-source ~/.bash_profile
-
-echo "Setting git defaults ..."
-for config in "${git_configs[@]}"
-do
-  git config --global ${config}
-done
-gpg --keyserver hkp://pgp.mit.edu --recv ${gpg_key}
-
-echo "Installing mac CLI ..."
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/guarinogabriel/mac-cli/master/mac-cli/tools/install)"
-
-echo "Updating ..."
-pip install --upgrade setuptools
-pip install --upgrade pip
-gem update --system
-mac update
 
 echo "Cleaning up ..."
 brew cleanup
@@ -271,21 +102,5 @@ do
   echo "Failed to install: $fail"
 done
 
-echo "Run `mackup restore` after DropBox has done syncing"
-
-#echo "Setting up fish shell ..."
-#brew install fish chruby-fish
-#echo $(which fish) | sudo tee -a /etc/shells
-#mkdir -p ~/.config/fish/
-#echo "source /usr/local/share/chruby/chruby.fish" >> ~/.config/fish/config.fish
-#echo "source /usr/local/share/chruby/auto.fish" >> ~/.config/fish/config.fish
-#echo "export GOPATH=/usr/libs/go" >> ~/.config/fish/config.fish
-#echo "export PATH=$PATH:$GOPATH/bin" >> ~/.config/fish/config.fish
-#chsh -s $(which fish)
-#curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
-#for omf in ${omfs[@]}
-#do
-#  fish -c "omf install ${omf}"
-#done
 
 echo "Done!"
